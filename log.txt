@@ -1,0 +1,22 @@
+waiting for 12125
+Running orca-cubic: wired48
+will be done in 30 seconds ...
+/home/matthew/Orca/rl-module/orca-server-mahimahi 44444 /home/matthew/Orca/rl-module 20 4 cubic 0 wired48 wired48 10 orca-cubic-wired48-wired48-10-20-160 30 160 0
+[start_server] sudo -u `whoami`   mm-delay 10 mm-link /home/matthew/Orca/rl-module/../traces/wired48 /home/matthew/Orca/rl-module/../traces/wired48 --downlink-log=/home/matthew/Orca/rl-module/log/down-orca-cubic-wired48-wired48-10-20-160 --uplink-queue=droptail --uplink-queue-args="packets=160" --downlink-queue=droptail --downlink-queue-args="packets=160" -- sh -c 'sudo -u `whoami` /home/matthew/Orca/rl-module/client $MAHIMAHI_BASE 1 44444' &
+[start_server] Starting RL Module (No learning) ...
+/home/`whoami`/venv/bin/python /home/matthew/Orca/rl-module/d5.py --tb_interval=1 --base_path=/home/matthew/Orca/rl-module --load --eval --task=0 --job_name=actor --train_dir=/home/matthew/Orca/rl-module  --mem_r=9706 --mem_w=4592 &[start_server] RL Module is Ready. Let's Start ...
+
+[main] Connected!
+[start_server] Server is Connected to the client...
+[DataThread] Matthew: Server is sending the traffic ...
+[CntThread] Matthew:CNT Threadflow_num:0 IPPROTO_TCP:6 TCP_NODELAY:1 reuse:1
+flow_num:1 IPPROTO_TCP:6 TCP_NODELAY:1 reuse:1
+[orca-server-mahimahi.cc-CntThread-391] ERROR: set TCP_NODELAY option Socket operation on non-socket
+Params:<utils.Params object at 0x7f696e456748>
+action_scale & action_range
+## checkpoint dir: /home/matthew/Orca/rl-module/train_dir/learner0
+## checkpoint exists?: True
+python program terminated usking Kill -15
+Finished.
+Doing Some Analysis ...
+Done

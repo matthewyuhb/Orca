@@ -1,0 +1,55 @@
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 39.29 Mbits/s (81.6% utilization)
+95th percentile per-packet queueing delay: 10 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 39.85 Mbits/s (82.8% utilization)
+95th percentile per-packet queueing delay: 17 ms
+Average per packet delay: 3 ms
+
+gnuplot> set output "/home/matthew/Orca"
+                                        ^
+         line 0:          cannot open file; output not changed
+system error: Is a directory
+
+Died at /home/matthew/Orca/rl-module/mm-thr line 245, <> line 346260.
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 41.80 Mbits/s (86.8% utilization)
+95th percentile per-packet queueing delay: 20 ms
+Average per packet delay: 4 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 42.47 Mbits/s (88.3% utilization)
+95th percentile per-packet queueing delay: 4 ms
+Average per packet delay: 2 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 43.97 Mbits/s (91.4% utilization)
+95th percentile per-packet queueing delay: 11 ms
+Average per packet delay: 5 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 41.57 Mbits/s (86.4% utilization)
+95th percentile per-packet queueing delay: 11 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 39.53 Mbits/s (82.1% utilization)
+95th percentile per-packet queueing delay: 3 ms
+Average per packet delay: 2 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 43.57 Mbits/s (90.5% utilization)
+95th percentile per-packet queueing delay: 8 ms
+Average per packet delay: 4 ms
+------------------------------

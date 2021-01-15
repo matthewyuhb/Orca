@@ -42,7 +42,7 @@ then
     $path/mm-thr 500 $path/log/down-${log} 1>tmp 2>res_tmp
     cat res_tmp >>$path/log/$out
     echo "------------------------------" >> $path/log/$out
-    rm *tmp
+    # rm *tmp
 fi
 echo "Done"
 

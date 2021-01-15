@@ -67,6 +67,7 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
         else:
             a = agent.get_action(s0, False)
         a = a[0][0]
+        print("matthew:a:"+str(a))
 
         env.write_action(a)
 
@@ -88,6 +89,7 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
                 a1 = a1[0][0]
 
                 env.write_action(a1)
+                print("matthew:a1:"+str(a1))
 
             else:
                 print("Invalid state received...\n")
@@ -156,22 +158,30 @@ def main():
     parser.add_argument('--task', type=int, required=True, help='Task id')
 
 
+
+
     ## parameters from parser
     global config
     global params
     config = parser.parse_args()
 
+    print("matthew:job name:"+str(config.job_name))
+
     ## parameters from file
     params = Params(os.path.join(config.base_path,'params.json'))
+    print("Params:"+str(params.dict))
+    # print()
 
 
     if params.dict['single_actor_eval']:
+        print("matthew:single_actor_eval")
         local_job_device = ''
         shared_job_device = ''
         def is_actor_fn(i): return True
         global_variable_device = '/cpu'
         is_learner = False
-        server = tf.train.Server.create_local_server()
+        print("matthew:create_local_server")
+        server = tf.train.Server.create_local_server()#会在本地创建一个单进程集群，该集群众的服务默认为启动状态
         filters = []
     else:
 
@@ -179,6 +189,7 @@ def main():
         shared_job_device = '/job:learner/task:0'
 
         is_learner = config.job_name == 'learner'
+        print("matthew:is_learner1:"+str(is_learner))
 
         global_variable_device = shared_job_device + '/cpu'
 
@@ -216,6 +227,8 @@ def main():
 
     s_dim, a_dim = env_peek.get_dims_info()
     action_scale, action_range = env_peek.get_action_info()
+    print("action_scale:"+str(action_scale))
+    print("action_range:"+str(action_range))
 
     if not params.dict['use_TCP']:
         params.dict['state_dim'] = s_dim
@@ -237,6 +250,7 @@ def main():
         actor_op = []
         now = datetime.datetime.now()
         tfeventdir = os.path.join( config.base_path, params.dict['logdir'], config.job_name+str(config.task) )
+        # print("tfeventdir:"+tfeventdir)
         params.dict['train_dir'] = tfeventdir
 
         if not os.path.exists(tfeventdir):
@@ -385,6 +399,7 @@ def main():
                     a = agent.get_action(s0, not config.eval)
                 a = a[0][0]
                 env.write_action(a)
+                print("matthew:a2:"+str(a))
                 epoch = 0
                 ep_r = 0.0
                 start = time.time()
@@ -407,6 +422,7 @@ def main():
 
 
                         env.write_action(a1)
+                        print("matthew:a3:"+str(a))
 
                     else:
                         print("TaskID:"+str(config.task)+"Invalid state received...\n")

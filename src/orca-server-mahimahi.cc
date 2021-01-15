@@ -28,10 +28,11 @@
 #include <cstdlib>
 #include <sys/select.h>
 #include "define.h"
+#include <iostream>
 //#define CHANGE_TARGET 1
 #define MAX_CWND 10000
 #define MIN_CWND 4
-
+using namespace std;
 int main(int argc, char **argv)
 {
     DBGPRINT(DBGSERVER,4,"Main\n");
@@ -46,7 +47,8 @@ int main(int argc, char **argv)
     
     srand(raw_timestamp());
 
-	signal(SIGSEGV, handler);   // install our handler
+//signal函数：只要信号被传送（通过raise（））就会执行该功能 
+	signal(SIGSEGV, handler);   // install our handler  
 	signal(SIGTERM, handler);   // install our handler
 	signal(SIGABRT, handler);   // install our handler
 	signal(SIGFPE, handler);   // install our handler
@@ -70,8 +72,9 @@ int main(int argc, char **argv)
     duration_steps=atoi(argv[13]);
 
     start_server(flow_num, client_port);
+
 	DBGMARK(DBGSERVER,5,"DONE!\n");
-    shmdt(shared_memory);
+    shmdt(shared_memory);//将共享内存从当前进程中分离。
     shmctl(shmid, IPC_RMID, NULL);
     shmdt(shared_memory_rl);
     shmctl(shmid_rl, IPC_RMID, NULL);
@@ -111,7 +114,7 @@ void start_server(int flow_num, int client_port)
     {
         memset(&server_addr[i],0,sizeof(server_addr[i]));
         //IP protocol
-        server_addr[i].sin_family=AF_INET;
+        server_addr[i].sin_family=AF_INET;//协议族为tcp/ip
         //Listen on "0.0.0.0" (Any IP address of this host)
         server_addr[i].sin_addr.s_addr=INADDR_ANY;
         //Specify port number
@@ -128,7 +131,7 @@ void start_server(int flow_num, int client_port)
         if (setsockopt(sock[i], SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
             perror("setsockopt(SO_REUSEADDR) failed");
         //Bind socket on IP:Port
-        if(bind(sock[i],(struct sockaddr *)&server_addr[i],sizeof(struct sockaddr))<0)
+        if(bind(sock[i],(struct sockaddr *)&server_addr[i],sizeof(struct sockaddr))<0)//绑定socket
         {
             DBGMARK(0,0,"bind error srv_ctr_ip: 000000: %s\n",strerror(errno));
             close(sock[i]);
@@ -136,7 +139,7 @@ void start_server(int flow_num, int client_port)
         }
         if (scheme) 
         {
-            if (setsockopt(sock[i], IPPROTO_TCP, TCP_CONGESTION, scheme, strlen(scheme)) < 0) 
+            if (setsockopt(sock[i], IPPROTO_TCP, TCP_CONGESTION, scheme, strlen(scheme)) < 0) //设置拥塞控制协议为cubic
             {
                 DBGMARK(0,0,"TCP congestion doesn't exist: %s\n",strerror(errno));
                 return;
@@ -156,6 +159,8 @@ void start_server(int flow_num, int client_port)
     
     sprintf(final_cmd,"%s",cmd);
 
+    //上面这几段应该是为了启动mahimahi
+
     DBGPRINT(DBGSERVER,0,"%s\n",final_cmd);
     info->trace=trace;
     info->num_lines=num_lines;
@@ -165,13 +170,13 @@ void start_server(int flow_num, int client_port)
     key=(key_t) (actor_id*10000+rand()%10000+1);
     key_rl=(key_t) (actor_id*10000+rand()%10000+1);
     // Setup shared memory, 11 is the size
-    if ((shmid = shmget(key, shmem_size, IPC_CREAT | 0666)) < 0)
+    if ((shmid = shmget(key, shmem_size, IPC_CREAT | 0666)) < 0)//用来创建共享内存 第一个参数是键 第二个参数是内存大小 第三个参数是权限标志
     {
         printf("Error getting shared memory id");
         return;
     }
         // Attached shared memory
-    if ((shared_memory = (char*)shmat(shmid, NULL, 0)) == (char *) -1)
+    if ((shared_memory = (char*)shmat(shmid, NULL, 0)) == (char *) -1)//用来启动对该共享内存的访问，并把共享内存连接到当前进程的地址空间。 第一个参数是共享内存标志 第二个参数是指定共享内存连接到当前进程中的地址位置，通常为null表示让系统来选择共享内存的地址。
     {
         printf("Error attaching shared memory id");
         return;
@@ -215,13 +220,17 @@ void start_server(int flow_num, int client_port)
     {
         //Get alpha from RL-Module
         signal_check_counter++;
+        // cout<<"matthew:shared_memory_rl:"<<shared_memory_rl<<endl;
         num=strtok_r(shared_memory_rl," ",&save_ptr);
         alpha=strtok_r(NULL," ",&save_ptr);
+            //         cout<<"matthew:num:"<<num<<endl;
+            // cout<<"matthew:alpha:"<<alpha<<endl;
         if(num!=NULL && alpha!=NULL)
         {
            signal=atoi(alpha);      
            if(signal==OK_SIGNAL)
            {
+              
               got_ready_signal_from_rl=true;
            }
            else{
@@ -229,7 +238,7 @@ void start_server(int flow_num, int client_port)
            }
         }
         else{
-           usleep(10000);
+           usleep(10000);//0.01us
         }
         if (signal_check_counter>18000)
         {
@@ -282,9 +291,9 @@ void start_server(int flow_num, int client_port)
 	int sin_size=sizeof(struct sockaddr_in);
 	while(flow_index<flow_num)
 	{
-        if (FD_ISSET(sock[flow_index], &rset)) 
+        if (FD_ISSET(sock[flow_index], &rset)) //检查此sock[flow_index]是否在集合rset里面
         {
-            int value=accept(sock[flow_index],(struct sockaddr *)&client_addr[flow_index],(socklen_t*)&sin_size);
+            int value=accept(sock[flow_index],(struct sockaddr *)&client_addr[flow_index],(socklen_t*)&sin_size);//等待一个socket FD的connection，当新的connection到达时，开启一个新的socket去接它。
             if(value<0)
             {
                 perror("accept error\n");
@@ -293,10 +302,10 @@ void start_server(int flow_num, int client_port)
                 close(sock[flow_index]);
                 return;
             }
-            sock_for_cnt[flow_index]=value;
+            sock_for_cnt[flow_index]=value;//value是新socket的描述（descriptor）
             flows[flow_index].flowinfo.sock=value;
             flows[flow_index].dst_addr=client_addr[flow_index];
-            if(pthread_create(&data_thread, NULL , DataThread, (void*)&flows[flow_index]) < 0)
+            if(pthread_create(&data_thread, NULL , DataThread, (void*)&flows[flow_index]) < 0)//开启一个数据thread
             {
                 perror("could not create thread\n");
                 close(sock[flow_index]);
@@ -380,8 +389,11 @@ void* CntThread(void* information)
     int msg_id=657;
     bool got_alpha=false;
     bool slow_start_passed=0;
+
     for(int i=0;i<FLOW_NUM;i++)
     {
+        cout<<"flow_num:"<<i<<" IPPROTO_TCP:"<<IPPROTO_TCP<<" TCP_NODELAY:"<<TCP_NODELAY<<" reuse:"<<reuse<<endl;
+
         if (setsockopt(sock_for_cnt[i], IPPROTO_TCP, TCP_NODELAY, &reuse, sizeof(reuse)) < 0)
         {
             DBGMARK(0,0,"ERROR: set TCP_NODELAY option %s\n",strerror(errno));
@@ -444,7 +456,7 @@ void* CntThread(void* information)
                         //Just for the first Time
                         slow_start_passed=(orca_info.snd_ssthresh<orca_info.cwnd)?1:0;
 
-                    if(!slow_start_passed)
+                    if(!slow_start_passed)//如果慢启动没有结束
                     {
                         //got_no_zero=1;
                         tcp_info_pre=orca_info;
@@ -497,6 +509,8 @@ void* CntThread(void* information)
            //Get alpha from RL-Module
            num=strtok_r(shared_memory_rl," ",&save_ptr);
            alpha=strtok_r(NULL," ",&save_ptr);
+            // cout<<"matthew:num:"<<num<<endl;
+            // cout<<"matthew:alpha:"<<alpha<<endl;
            if(num!=NULL && alpha!=NULL)
            {
                pre_id_tmp=atoi(num);
@@ -506,6 +520,7 @@ void* CntThread(void* information)
                   got_alpha=true; 
                   pre_id=pre_id_tmp; 
                   target_ratio=atoi(alpha)*orca_info.cwnd/100;
+                  cout<<"matthew:target_ratio:"<<atoi(alpha)<<  "  pre_id:"<<pre_id_tmp<<endl;
                   
                   if (target_ratio<MIN_CWND)
                       target_ratio=MIN_CWND;
@@ -664,7 +679,7 @@ void* DataThread(void* info)
 	//Calculate remaining size to be sent
 	remaining_size=flow->flowinfo.size*1024-loop*BUFSIZ;
 	//Send data with 8192 bytes each loop
-	DBGPRINT(0,0,"Server is sending the traffic ...\n");
+	DBGPRINT(0,0,"Matthew: Server is sending the traffic ...\n");
 
    // for(u64 i=0;i<loop;i++)
 	while(send_traffic)

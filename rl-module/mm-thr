@@ -221,6 +221,7 @@ END
 
 #printf GNUPLOT qq{plot [%f:%f] "-" using 1:2 title "Capacity (mean %.2f Mbits/s)" with filledcurves above x1 lw 0.5, "-" using 1:3 with lines lc rgb "#0020a0" lw 4 title "Traffic ingress (mean %.2f Mbits/s)", "-" using 1:4 with lines lc rgb "#ff6040" lw 2 title "Traffic egress (mean %.2f Mbits/s)"\n}, $first_timestamp / 1000.0, $last_timestamp / 1000.0, $average_capacity, $average_ingress, $average_throughput;
 #printf GNUPLOT qq{set xtics 0,0.5,120\nset ytics 0,1,20\n};
+# printf "matthew perl--------------------------------------------------------";
 printf GNUPLOT qq{plot [%f:%f] "-" using 1:2 title "Capacity (mean %.2f Mbits/s)" with filledcurves above x1 lw 0.2, "-" using 1:3 with lines lc rgb "#0020a0" lw 1.25 title "Traffic ingress (mean %.2f Mbits/s)", "-" using 1:4 with lines lc rgb "#ff6040" lw 1.25 title "Traffic egress (mean %.2f Mbits/s)"\n}, $first_timestamp/1000, $last_timestamp/1000,$average_capacity, $average_ingress, $average_throughput;
 #printf GNUPLOT qq{plot [%f:%f] "-" using 1:2 title "Capacity (mean %.2f Mbits/s)" with filledcurves above x1 lw 0.2, "-" using 1:3 with lines lc rgb "#0020a0" lw 1.25 title "Traffic ingress (mean %.2f Mbits/s)", "-" using 1:4 with lines lc rgb "#ff6040" lw 1.25 title "Traffic egress (mean %.2f Mbits/s)"\n}, $first_timestamp / 1000.0, $last_timestamp / 1000.0, $average_capacity, $average_ingress, $average_throughput;
 my $output;

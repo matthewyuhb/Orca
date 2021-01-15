@@ -43,6 +43,7 @@ class Env_Wrapper(object):
 
     def get_action_info(self):
         action_scale = self.env.action_space.high
+        
         action_range = (self.env.action_space.low, self.env.action_space.high)
         return  action_scale, action_range
 
@@ -222,11 +223,13 @@ class TCP_Env_Wrapper(object):
             thr=s0[1]
             samples=s0[2]
             delta_t=s0[3]
+            print("matthew:delta_t"+str(delta_t))
             target_=s0[4]
             cwnd=s0[5]
             pacing_rate=s0[6]
             loss_rate=s0[7]
             srtt_ms=s0[8]
+            print("matthew:srtt_ms"+str(srtt_ms))
             snd_ssthresh=s0[9]
             packets_out=s0[10]
             retrans_out=s0[11]
@@ -332,6 +335,7 @@ class TCP_Env_Wrapper(object):
         modified_action = self.map_action(action)
 
         msg = str(self.wid)+" "+str(modified_action)+"\0"
+        # print("matthew:write action:"+str(msg))
         self.shrmem_w.write(msg)
         self.wid = (self.wid + 1) % 1000
         pass
