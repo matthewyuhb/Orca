@@ -214,15 +214,17 @@ void start_server(int flow_num, int client_port)
     int signal;
     char *num;
     char*alpha;
+    // char * orca_state;
     char *save_ptr;
     int signal_check_counter=0;
     while(!got_ready_signal_from_rl)
     {
         //Get alpha from RL-Module
         signal_check_counter++;
-        // cout<<"matthew:shared_memory_rl:"<<shared_memory_rl<<endl;
+
         num=strtok_r(shared_memory_rl," ",&save_ptr);
         alpha=strtok_r(NULL," ",&save_ptr);
+        // orca_state = strtok_r(NULL," ",&save_ptr);
             //         cout<<"matthew:num:"<<num<<endl;
             // cout<<"matthew:alpha:"<<alpha<<endl;
         if(num!=NULL && alpha!=NULL)
@@ -392,7 +394,7 @@ void* CntThread(void* information)
 
     for(int i=0;i<FLOW_NUM;i++)
     {
-        cout<<"flow_num:"<<i<<" IPPROTO_TCP:"<<IPPROTO_TCP<<" TCP_NODELAY:"<<TCP_NODELAY<<" reuse:"<<reuse<<endl;
+        cout<<"[CPP]:flow_num:"<<i<<" IPPROTO_TCP:"<<IPPROTO_TCP<<" TCP_NODELAY:"<<TCP_NODELAY<<" reuse:"<<reuse<<endl;
 
         if (setsockopt(sock_for_cnt[i], IPPROTO_TCP, TCP_NODELAY, &reuse, sizeof(reuse)) < 0)
         {
@@ -411,6 +413,7 @@ void* CntThread(void* information)
     char message[1000];
     char *num;
     char*alpha;
+    char * orca_state;//add by matthew 
     char*save_ptr;
     int got_no_zero=0;
     uint64_t t0,t1;
@@ -429,7 +432,9 @@ void* CntThread(void* information)
            usleep(report_period*1000);
            while(!got_no_zero && send_traffic)
            {
+            //    cout<<"[CPP]:matthew:sending traffic"<<endl;
                 ret1= get_orca_info(sock_for_cnt[i],&orca_info);
+                // cout<<"[CPP]:matthew:orca_info.avg_urtt:"<<orca_info.avg_urtt<<endl;
                 if(ret1<0)
                 {
                     DBGMARK(0,0,"setsockopt: for index:%d flow_index:%d TCP_C2TCP ... %s (ret1:%d)\n",i,flow_index,strerror(errno),ret1);
@@ -452,13 +457,17 @@ void* CntThread(void* information)
                     max_packets_out=(double)(orca_info.max_packets_out);
 
                     report_period=20;
-                    if (!slow_start_passed)
-                        //Just for the first Time
+                    cout<<"[CPP]:matthew111!!! orca_info.cwnd:"<<orca_info.cwnd<<"orca_info.snd_ssthresh:"<<orca_info.snd_ssthresh<<endl;
+                    if (!slow_start_passed){//如果满启动没有结束
+                            //Just for the first Time
                         slow_start_passed=(orca_info.snd_ssthresh<orca_info.cwnd)?1:0;
+                        cout<<"[CPP]:matthew:slow_start_passed"<<slow_start_passed<<endl;
+                    }
+                        
 
                     if(!slow_start_passed)//如果慢启动没有结束
                     {
-                        //got_no_zero=1;
+                        cout<<"[CPP]:Matthew:slow_start_not_passed!"<<endl;
                         tcp_info_pre=orca_info;
                         t0=timestamp();
 
@@ -471,6 +480,7 @@ void* CntThread(void* information)
                         }
                         continue;
                     }
+                    cout<<"[CPP]:Matthew1:orca_info.cwnd:"<<orca_info.cwnd<<"orca_info.snd_ssthresh:"<<orca_info.snd_ssthresh<<"orca_info.orca_state:"<<orca_info.orca_state<<endl;
                     sprintf(message,"%d %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f %.7f",
                             msg_id,delay,(double)orca_info.thr,(double)orca_info.cnt,(double)time_delta,
                             (double)target,(double)orca_info.cwnd, pacing_rate,lost_rate,srtt_ms,snd_ssthresh,packets_out
@@ -507,23 +517,41 @@ void* CntThread(void* information)
         while(!got_alpha && send_traffic)
         { 
            //Get alpha from RL-Module
+            cout<<"[CPP]:matthew:shared_memory_rl:"<<shared_memory_rl<<endl;
            num=strtok_r(shared_memory_rl," ",&save_ptr);
            alpha=strtok_r(NULL," ",&save_ptr);
-            // cout<<"matthew:num:"<<num<<endl;
-            // cout<<"matthew:alpha:"<<alpha<<endl;
-           if(num!=NULL && alpha!=NULL)
+           orca_state = strtok_r(NULL," ",&save_ptr);
+            cout<<"[CPP]:matthew:num:"<<num<<endl;
+            if(alpha){
+                cout<<"[CPP]:matthew:alpha:"<<alpha<<endl;
+            }
+            // 
+            if(orca_state){
+                cout<<"[CPP]:matthew:orca_state:"<<orca_state<<endl;  
+            }
+            // 
+           if(num!=NULL && alpha!=NULL&&orca_state!=NULL)
            {
                pre_id_tmp=atoi(num);
                target_ratio=atoi(alpha);
+               orca_state_i=atoi(orca_state);
                if(pre_id!=pre_id_tmp /*&& target_ratio!=OK_SIGNAL*/)
                {
                   got_alpha=true; 
                   pre_id=pre_id_tmp; 
-                  target_ratio=atoi(alpha)*orca_info.cwnd/100;
-                  cout<<"matthew:target_ratio:"<<atoi(alpha)<<  "  pre_id:"<<pre_id_tmp<<endl;
+                  target_ratio=1000000;//atoi(alpha)*orca_info.cwnd/100;
+                  cout<<"[CPP]:matthew:target_ratio:"<<target_ratio<<  "  pre_id:"<<pre_id_tmp<<" orca_state"<<orca_state_i<<endl;
                   
                   if (target_ratio<MIN_CWND)
                       target_ratio=MIN_CWND;
+
+
+                ret1  = setsockopt(sock_for_cnt[i], IPPROTO_TCP,TCP_ORCA_STATE, &orca_state_i, sizeof(orca_state_i));//设置orca的状态
+                  if(ret1<0)
+                  {
+                      DBGPRINT(0,0,"setsockopt_orca_state: for index:%d flow_index:%d ... %s (ret1:%d)\n",i,flow_index,strerror(errno),ret1);
+                      return((void *)0);
+                  }
 
                   ret1 = setsockopt(sock_for_cnt[i], IPPROTO_TCP,TCP_CWND, &target_ratio, sizeof(target_ratio));
                   if(ret1<0)
@@ -531,6 +559,10 @@ void* CntThread(void* information)
                       DBGPRINT(0,0,"setsockopt: for index:%d flow_index:%d ... %s (ret1:%d)\n",i,flow_index,strerror(errno),ret1);
                       return((void *)0);
                   }
+
+
+                
+
                   error_cnt=0;
                }
                else{

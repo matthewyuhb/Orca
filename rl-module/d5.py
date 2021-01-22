@@ -66,17 +66,17 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
             a = agent.get_action(s0_rec_buffer, False)
         else:
             a = agent.get_action(s0, False)
-        a = a[0][0]
+        a = env.map_action(a[0][0])
         print("matthew:a:"+str(a))
 
-        env.write_action(a)
+        env.write_action(a,0)
 
         while True:
 
             eval_step_counter += 1
             step_counter += 1
 
-            s1, r, terminal, error_code = env.step(a, eval_=True)
+            s1, r, terminal, error_code,ccc = env.step(a, eval_=True)
 
             if error_code == True:
                 s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
@@ -86,14 +86,14 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
                 else:
                     a1 = agent.get_action(s1, False)
 
-                a1 = a1[0][0]
+                a1 = env.map_action(a1[0][0])
 
-                env.write_action(a1)
+                env.write_action(a1,0)
                 print("matthew:a1:"+str(a1))
 
             else:
                 print("Invalid state received...\n")
-                env.write_action(a)
+                env.write_action(a,0)
                 continue
 
             ep_r = ep_r+r
@@ -142,6 +142,21 @@ class learner_killer():
         sys.exit(0)
 
 
+class Orca_state(object):
+    """
+    docstring
+    """
+    Ordinary = 0
+    EI_c_1 = 1 #
+    EI_r_1 = 2 #
+    EI_c_2 = 3 #receive ack of the class action and generate the reward 
+    EI_r_2 = 4 #receive ack of the rl action and generate the reward
+
+EI_sequence=0 #0:cl first 1:rl first
+u_1=0
+u_2=0
+u_3=0
+
 def main():
 
     tf.get_logger().setLevel(logging.ERROR)
@@ -171,6 +186,11 @@ def main():
     params = Params(os.path.join(config.base_path,'params.json'))
     print("Params:"+str(params.dict))
     # print()
+
+    #parameters of the Orca itself 
+    orca_state=Orca_state.Ordinary
+    th3=0.2
+    
 
 
     if params.dict['single_actor_eval']:
@@ -397,36 +417,155 @@ def main():
                     a = agent.get_action(s0_rec_buffer,not config.eval)
                 else:
                     a = agent.get_action(s0, not config.eval)
-                a = a[0][0]
-                env.write_action(a)
+                a = env.map_action(a[0][0])#matthew
+                env.write_action(a,orca_state)
                 print("matthew:a2:"+str(a))
+                prev_cwnd=a
                 epoch = 0
                 ep_r = 0.0
                 start = time.time()
+                count=0
                 while True:
+                    print("")
+                    print(count)
+                    count+=1
                     start = time.time()
+                    print("matthew: time:"+str(start))
                     epoch += 1
-
+                    print("matthew:time1:"+str(time.time()))
+                    # 这里的state意味着上一个episode的state，然后会根据不同情况决定下一个state是什么
                     step_counter += 1
-                    s1, r, terminal, error_code = env.step(a,eval_=config.eval)
-
+                    s1, r, terminal, error_code,cwnd = env.step(a,eval_=config.eval)#这个action参数没啥用
+                    if(count==1):
+                        prev_cwnd = cwnd 
+                    
+                    print("matthew:s1:"+str(s1))
+                    
                     if error_code == True:
-                        s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
+                        if orca_state==Orca_state.Ordinary:
+                            print("matthew:stage:Ordinary")
+                       
+                        
+                            s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
 
-                        if params.dict['recurrent']:
-                            a1 = agent.get_action(s1_rec_buffer, not config.eval)
-                        else:
-                            a1 = agent.get_action(s1,not config.eval)
-
-                        a1 = a1[0][0]
+                            if params.dict['recurrent']:
+                                a_rl = agent.get_action(s1_rec_buffer, not config.eval)#a_rl是指数项
+                            else:
+                                a_rl = agent.get_action(s1,not config.eval)
 
 
-                        env.write_action(a1)
-                        print("matthew:a3:"+str(a))
+                            a_r= env.map_action(a_rl[0][0])#得到RL方法得到的action，得到的是prev_cwnd所要乘的一个系数 的100倍
+
+                            x_r=prev_cwnd*a_r/100#按照rl得出的对应的cwnd的值
+                            x_c=cwnd#得到cubic得到的action  它就是新cwnd的值
+                            print("matthew:x_r:"+str(x_r)+" x_c:"+str(x_c))
+                            if np.abs(x_r-x_c)>=0.2*prev_cwnd:#prev_cwnd not defined yet
+                                #进入evaluation stage
+                                if(x_r-prev_cwnd)*(x_c-prev_cwnd)>=0 :
+                                         #进入EI,注意：进入EI和进入evaluation stage是不一样的
+                                        if x_r>x_c:
+                                            EI_sequence=1
+                                            a_final=x_r
+                                            orca_state=Orca_state.EI_r_1
+                                        else:
+                                            EI_sequence=0
+                                            a_final=x_c
+                                            orca_state=Orca_state.EI_c_1
+                                else: 
+                                    if (x_c-prev_cwnd)<0 :  
+                                        a_final=x_c
+                                    else:
+                                    #进入EI
+                                        if x_r>x_c:
+                                            EI_sequence=1
+                                            a_final=x_r
+                                            orca_state=Orca_state.EI_r_1
+                                        else:
+                                            EI_sequence=0
+                                            a_final=x_c
+                                            orca_state=Orca_state.EI_c_1
+                        
+                        elif orca_state==Orca_state.EI_c_1:
+                            print("matthew:stage:EI_c_1")
+                            if EI_sequence==0:#cl先行 下一个状态是EI_r_1
+                                u_1=r#得到u1但是后续需要除episode的长度
+                                orca_state=Orca_state.EI_r_1
+                                a_final=x_r
+                            else:
+                                orca_state=Orca_state.EI_r_2
+                                a_final=prev_cwnd
+                        
+                        elif orca_state==Orca_state.EI_r_1:
+                            print("matthew:stage:EI_r_1")
+                            if EI_sequence==1:#rl先行 下一个状态是EI_c_1
+                                u_1=r#得到u1但是后续需要除episode的长度
+                                orca_state=Orca_state.EI_c_1
+                                a_final=x_c
+                            else:
+                                orca_state=Orca_state.EI_c_2
+                                a_final=prev_cwnd
+
+                        elif orca_state==Orca_state.EI_c_2:
+                            print("matthew:stage:EI_c_2")
+                            if EI_sequence==0:#cl先行 下一个动作是EI_r_2
+                                u_2=r#得到u2但是后续需要除episode的长度
+                                orca_state=Orca_state.EI_r_2
+                                # a_final=a_r
+                            else:
+                                orca_state=Orca_state.Ordinary#Evaluation结束进入Ordinary
+                                u_3=r
+                                if max(u_2,u_3)>=u_1:
+                                    if(u_2>u_3):#EI——sequence=1 rl先行
+                                        a_final=x_r
+                                        prev_cwnd=a_final
+                                    else:
+                                        a_final=x_c
+                                        prev_cwnd=a_final
+                                else:
+                                        a_final=prev_cwnd
+
+                        elif orca_state==Orca_state.EI_r_2:
+                            print("matthew:stage:EI_r_2")
+                            if EI_sequence==1:#rl先行 下一个动作是EI_c_2
+                                u_2=r#得到u2但是后续需要除episode的长度
+                                orca_state=Orca_state.EI_c_2
+                                # a_final=a_r
+                            else:
+                                orca_state=Orca_state.Ordinary#Evaluation结束进入Ordinary
+                                u_3=r
+                                if max(u_2,u_3)>=u_1:
+                                    if(u_2>u_3):#EI——sequence=0 cl先行
+                                        a_final=x_c
+                                        prev_cwnd=a_final
+                                    else:
+                                        a_final=x_r
+                                        prev_cwnd=a_final
+                                else:
+                                    a_final=prev_cwnd
+
+                    # step_counter += 1
+                    # s1, r, terminal, error_code,cwnd = env.step(a,eval_=config.eval)
+                    # print("matthew:state:"+str(s1))
+
+                    # if error_code == True:
+                    #     s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
+
+                    #     if params.dict['recurrent']:
+                    #         a_rl = agent.get_action(s1_rec_buffer, not config.eval)
+                    #     else:
+                    #         a_rl = agent.get_action(s1,not config.eval)
+
+                        # a_final = env.map_action(a_rl[0][0])
+
+
+
+                        print("matthew:time2:"+str(time.time()))
+                        env.write_action(a_final,orca_state)
+                        print("matthew:a3:"+str(a_final))
 
                     else:
                         print("TaskID:"+str(config.task)+"Invalid state received...\n")
-                        env.write_action(a)
+                        env.write_action(a,orca_state)
                         continue
 
                     if params.dict['recurrent']:
@@ -438,7 +577,7 @@ def main():
                         mon_sess.run(actor_op, feed_dict=fd)
 
                     s0 = s1
-                    a = a1
+                    a = a_final
                     if params.dict['recurrent']:
                         s0_rec_buffer = s1_rec_buffer
 

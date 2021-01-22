@@ -1,0 +1,46 @@
+orca-bbr-wired48-wired48-10-20-160
+Can't open /home/matthew/Orca/rl-module/log/down-orca-bbr-wired48-wired48-10-20-160: 没有那个文件或目录 at /home/matthew/Orca/rl-module/mm-thr line 42.
+Must have at least one event at /home/matthew/Orca/rl-module/mm-thr line 150.
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Can't open /home/matthew/Orca/rl-module/log/down-orca-bbr-wired48-wired48-10-20-160: 没有那个文件或目录 at /home/matthew/Orca/rl-module/mm-thr line 42.
+Must have at least one event at /home/matthew/Orca/rl-module/mm-thr line 150.
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Can't open /home/matthew/Orca/rl-module/log/down-orca-bbr-wired48-wired48-10-20-160: 没有那个文件或目录 at /home/matthew/Orca/rl-module/mm-thr line 42.
+Must have at least one event at /home/matthew/Orca/rl-module/mm-thr line 150.
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 46.55 Mbits/s (96.7% utilization)
+95th percentile per-packet queueing delay: 30 ms
+Average per packet delay: 25 ms
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 2.25 Mbits/s (4.7% utilization)
+95th percentile per-packet queueing delay: 27 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 2.28 Mbits/s (4.7% utilization)
+95th percentile per-packet queueing delay: 31 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 2.28 Mbits/s (4.7% utilization)
+95th percentile per-packet queueing delay: 31 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Use of uninitialized value $departure_sum in division (/) at /home/matthew/Orca/rl-module/mm-thr line 157, <> line 44807.
+Must have at least one departure event at /home/matthew/Orca/rl-module/mm-thr line 160, <> line 44807.
+------------------------------
+orca-bbr-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 4.42 Mbits/s (9.2% utilization)
+95th percentile per-packet queueing delay: 38 ms
+Average per packet delay: 13 ms
+------------------------------

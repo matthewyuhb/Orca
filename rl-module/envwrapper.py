@@ -82,7 +82,7 @@ class GYM_Env_Wrapper(Env_Wrapper):
         error_code = True
         return prev_rid, s1, delay_, rew0, error_code
 
-    def write_action(self, action):
+    def write_action(self, action,orca_state):
         pass
 
     def map_action(self, action):
@@ -149,13 +149,13 @@ class TCP_Env_Wrapper(object):
     def get_action_info(self):
         action_scale = np.array([1.])
         action_range = (-action_scale,action_scale)
-        print('action_scale & action_range')
+        # print('action_scale & action_range')
         return  action_scale, action_range
 
     def reset(self):
         # start signal
         self.shrmem_w.write(str(99999) + " " + str(99999) + "\0")
-        state, delay_, rew0, error_code  = self.get_state()
+        state, delay_, rew0, error_code,cwnd  = self.get_state()
         return state
 
     def test(self):
@@ -223,7 +223,7 @@ class TCP_Env_Wrapper(object):
             thr=s0[1]
             samples=s0[2]
             delta_t=s0[3]
-            print("matthew:delta_t"+str(delta_t))
+            # print("matthew:delta_t"+str(delta_t))
             target_=s0[4]
             cwnd=s0[5]
             pacing_rate=s0[6]
@@ -315,9 +315,9 @@ class TCP_Env_Wrapper(object):
             state=np.append(state,[delay_metric])
 
             self.prev_rid = rid
-            return state, d, reward, True
+            return state, d, reward, True,cwnd
         else:
-            return state, 0.0, reward, False
+            return state, 0.0, reward, False,4
 
     def map_action(self, action):
         out = math.pow(4, action)
@@ -330,20 +330,20 @@ class TCP_Env_Wrapper(object):
         return out
 
 
-    def write_action(self, action):
+    def write_action(self, action,orca_state):
 
-        modified_action = self.map_action(action)
+        # modified_action = self.map_action(action)
 
-        msg = str(self.wid)+" "+str(modified_action)+"\0"
-        # print("matthew:write action:"+str(msg))
+        msg = str(self.wid)+" "+str(action)+" "+str(orca_state)+"\0"
+        print("matthew:write action:"+str(msg))
         self.shrmem_w.write(msg)
         self.wid = (self.wid + 1) % 1000
         pass
 
     def step(self, action, eval_=False):
-        s1, delay_, rew0, error_code  = self.get_state(evaluation=eval_)
+        s1, delay_, rew0, error_code ,cwnd = self.get_state(evaluation=eval_)
 
-        return s1, rew0, False, error_code
+        return s1, rew0, False, error_code,cwnd
 
 
 class Moving_Win():

@@ -1,0 +1,19 @@
+orca-reno-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 3.53 Mbits/s (7.3% utilization)
+95th percentile per-packet queueing delay: 39 ms
+Average per packet delay: 13 ms
+ have at least one event at /home/matthew/Orca/rl-module/mm-thr line 150.
+------------------------------
+orca-reno-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 2.70 Mbits/s (5.6% utilization)
+95th percentile per-packet queueing delay: 38 ms
+Average per packet delay: 8 ms
+------------------------------
+orca-reno-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 2.60 Mbits/s (5.4% utilization)
+95th percentile per-packet queueing delay: 39 ms
+Average per packet delay: 9 ms
+------------------------------

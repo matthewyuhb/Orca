@@ -93,6 +93,7 @@ int min_thr=2;
 int qsize=100; //pkts
 int flow_index=0;
 int target_ratio=150;
+int orca_state_i=0;
 u32 target=50; //50ms
 u32 report_period=5;//5s
 double mm_loss_rate=0;
@@ -116,6 +117,7 @@ struct tcp_orca_info {
     u32 retrans_out;        /* Retransmitted packets out*/
     u32 max_packets_out;    /* max packets_out in last window */
     u32 mss;
+    u32 orca_state; //matthew
 
     void init()
     {
@@ -132,6 +134,7 @@ struct tcp_orca_info {
         retrans_out=0;
         max_packets_out=0;
         mss=0;
+        orca_state=0;//matthew
     }
     tcp_orca_info& operator =(const tcp_orca_info& a){
         this->min_rtt=a.min_rtt;
@@ -147,6 +150,7 @@ struct tcp_orca_info {
         this->retrans_out=a.retrans_out;
         this->max_packets_out=a.max_packets_out;
         this->mss=a.mss;
+        this->orca_state=a.orca_state;//matthew
     }
 }orca_info;
 
@@ -178,6 +182,7 @@ sTrace *trace;
 #define TCP_CWND_CAP 45
 #define TCP_ORCA_INFO 46 /* Get          Congestion Control (optional) orca info */
 #define TCP_CWND_MIN 47
+#define TCP_ORCA_STATE 48
 
 
 uint64_t raw_timestamp( void )
