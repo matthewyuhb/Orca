@@ -425,6 +425,7 @@ def main():
                 ep_r = 0.0
                 start = time.time()
                 count=0
+                cwnd_list=[]
                 while True:
                     print("")
                     print(count)
@@ -440,10 +441,13 @@ def main():
                         prev_cwnd = cwnd 
                     
                     print("matthew:s1:"+str(s1))
+
+                    
                     
                     if error_code == True:
                         if orca_state==Orca_state.Ordinary:
                             print("matthew:stage:Ordinary")
+                            cwnd_list.clear()
                        
                         
                             s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
@@ -453,61 +457,76 @@ def main():
                             else:
                                 a_rl = agent.get_action(s1,not config.eval)
 
+                            print("matthew:a_rl[0][0]:"+str(a_rl[0][0]))
+
 
                             a_r= env.map_action(a_rl[0][0])#得到RL方法得到的action，得到的是prev_cwnd所要乘的一个系数 的100倍
 
                             x_r=prev_cwnd*a_r/100#按照rl得出的对应的cwnd的值
                             x_c=cwnd#得到cubic得到的action  它就是新cwnd的值
-                            print("matthew:x_r:"+str(x_r)+" x_c:"+str(x_c))
+                            print("matthew:x_r:"+str(x_r)+" x_c:"+str(x_c)+" prev_cwnd:"+str(prev_cwnd))
                             if np.abs(x_r-x_c)>=0.2*prev_cwnd:#prev_cwnd not defined yet
                                 #进入evaluation stage
                                 if(x_r-prev_cwnd)*(x_c-prev_cwnd)>=0 :
                                          #进入EI,注意：进入EI和进入evaluation stage是不一样的
                                         if x_r>x_c:
+                                            cwnd_list.append(x_c)
+                                            cwnd_list.append(x_r)
                                             EI_sequence=1
-                                            a_final=x_r
-                                            orca_state=Orca_state.EI_r_1
-                                        else:
-                                            EI_sequence=0
-                                            a_final=x_c
+                                            a_final=cwnd_list[0]
                                             orca_state=Orca_state.EI_c_1
+                                        else:
+                                            cwnd_list.append(x_r)
+                                            cwnd_list.append(x_c)
+                                            EI_sequence=0
+                                            a_final=cwnd_list[0]
+                                            orca_state=Orca_state.EI_r_1
                                 else: 
                                     if (x_c-prev_cwnd)<0 :  
                                         a_final=x_c
+                                        prev_cwnd=a_final
                                     else:
                                     #进入EI
                                         if x_r>x_c:
+                                            cwnd_list.append(x_c)
+                                            cwnd_list.append(x_r)
                                             EI_sequence=1
-                                            a_final=x_r
-                                            orca_state=Orca_state.EI_r_1
-                                        else:
-                                            EI_sequence=0
-                                            a_final=x_c
+                                            a_final=cwnd_list[0]
                                             orca_state=Orca_state.EI_c_1
+                                        else:
+                                            cwnd_list.append(x_r)
+                                            cwnd_list.append(x_c)
+                                            EI_sequence=0
+                                            a_final=cwnd_list[0]
+                                            orca_state=Orca_state.EI_r_1
+                            else:
+                                a_final=x_c
                         
                         elif orca_state==Orca_state.EI_c_1:
                             print("matthew:stage:EI_c_1")
-                            if EI_sequence==0:#cl先行 下一个状态是EI_r_1
+                            if EI_sequence==1:#cl先行 下一个状态是EI_r_1
                                 u_1=r#得到u1但是后续需要除episode的长度
                                 orca_state=Orca_state.EI_r_1
-                                a_final=x_r
+                                a_final=cwnd_list[1]
                             else:
+                                
                                 orca_state=Orca_state.EI_r_2
                                 a_final=prev_cwnd
                         
                         elif orca_state==Orca_state.EI_r_1:
                             print("matthew:stage:EI_r_1")
-                            if EI_sequence==1:#rl先行 下一个状态是EI_c_1
+                            if EI_sequence==0:#rl先行 下一个状态是EI_c_1
                                 u_1=r#得到u1但是后续需要除episode的长度
                                 orca_state=Orca_state.EI_c_1
-                                a_final=x_c
+                                a_final=cwnd_list[1]
                             else:
+                                
                                 orca_state=Orca_state.EI_c_2
                                 a_final=prev_cwnd
 
                         elif orca_state==Orca_state.EI_c_2:
                             print("matthew:stage:EI_c_2")
-                            if EI_sequence==0:#cl先行 下一个动作是EI_r_2
+                            if EI_sequence==1:#cl先行 下一个动作是EI_r_2
                                 u_2=r#得到u2但是后续需要除episode的长度
                                 orca_state=Orca_state.EI_r_2
                                 # a_final=a_r
@@ -516,17 +535,17 @@ def main():
                                 u_3=r
                                 if max(u_2,u_3)>=u_1:
                                     if(u_2>u_3):#EI——sequence=1 rl先行
-                                        a_final=x_r
+                                        a_final=cwnd_list[0]
                                         prev_cwnd=a_final
                                     else:
-                                        a_final=x_c
+                                        a_final=cwnd_list[1]
                                         prev_cwnd=a_final
                                 else:
                                         a_final=prev_cwnd
 
                         elif orca_state==Orca_state.EI_r_2:
                             print("matthew:stage:EI_r_2")
-                            if EI_sequence==1:#rl先行 下一个动作是EI_c_2
+                            if EI_sequence==0:#rl先行 下一个动作是EI_c_2
                                 u_2=r#得到u2但是后续需要除episode的长度
                                 orca_state=Orca_state.EI_c_2
                                 # a_final=a_r
@@ -535,10 +554,10 @@ def main():
                                 u_3=r
                                 if max(u_2,u_3)>=u_1:
                                     if(u_2>u_3):#EI——sequence=0 cl先行
-                                        a_final=x_c
+                                        a_final=cwnd_list[0]
                                         prev_cwnd=a_final
                                     else:
-                                        a_final=x_r
+                                        a_final=cwnd_list[1]
                                         prev_cwnd=a_final
                                 else:
                                     a_final=prev_cwnd
