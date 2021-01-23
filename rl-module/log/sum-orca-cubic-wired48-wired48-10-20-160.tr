@@ -893,3 +893,123 @@ Average throughput: 44.46 Mbits/s (92.4% utilization)
 95th percentile per-packet queueing delay: 34 ms
 Average per packet delay: 22 ms
 ------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.14 Mbits/s
+Average throughput: 5.30 Mbits/s (11.0% utilization)
+95th percentile per-packet queueing delay: 39 ms
+Average per packet delay: 13 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 1.59 Mbits/s (3.3% utilization)
+95th percentile per-packet queueing delay: 2 ms
+Average per packet delay: 1 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.16 Mbits/s
+Average throughput: 3.44 Mbits/s (7.1% utilization)
+95th percentile per-packet queueing delay: 5 ms
+Average per packet delay: 2 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 31.46 Mbits/s (65.4% utilization)
+95th percentile per-packet queueing delay: 18 ms
+Average per packet delay: 7 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 36.53 Mbits/s (75.9% utilization)
+95th percentile per-packet queueing delay: 20 ms
+Average per packet delay: 8 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 24.81 Mbits/s (51.5% utilization)
+95th percentile per-packet queueing delay: 10 ms
+Average per packet delay: 4 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.14 Mbits/s
+Average throughput: 6.48 Mbits/s (13.5% utilization)
+95th percentile per-packet queueing delay: 39 ms
+Average per packet delay: 19 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.14 Mbits/s
+Average throughput: 2.43 Mbits/s (5.1% utilization)
+95th percentile per-packet queueing delay: 9 ms
+Average per packet delay: 3 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.14 Mbits/s
+Average throughput: 23.30 Mbits/s (48.4% utilization)
+95th percentile per-packet queueing delay: 9 ms
+Average per packet delay: 4 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.15 Mbits/s
+Average throughput: 5.38 Mbits/s (11.2% utilization)
+95th percentile per-packet queueing delay: 32 ms
+Average per packet delay: 12 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 28.96 Mbits/s (60.2% utilization)
+95th percentile per-packet queueing delay: 28 ms
+Average per packet delay: 11 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 31.31 Mbits/s (65.0% utilization)
+95th percentile per-packet queueing delay: 33 ms
+Average per packet delay: 15 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.15 Mbits/s
+Average throughput: 20.38 Mbits/s (42.3% utilization)
+95th percentile per-packet queueing delay: 40 ms
+Average per packet delay: 27 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.17 Mbits/s
+Average throughput: 9.25 Mbits/s (19.2% utilization)
+95th percentile per-packet queueing delay: 5 ms
+Average per packet delay: 2 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.19 Mbits/s
+Average throughput: 7.16 Mbits/s (14.9% utilization)
+95th percentile per-packet queueing delay: 3 ms
+Average per packet delay: 1 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.19 Mbits/s
+Average throughput: 15.36 Mbits/s (31.9% utilization)
+95th percentile per-packet queueing delay: 9 ms
+Average per packet delay: 4 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.14 Mbits/s
+Average throughput: 20.95 Mbits/s (43.5% utilization)
+95th percentile per-packet queueing delay: 40 ms
+Average per packet delay: 19 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 41.03 Mbits/s (85.2% utilization)
+95th percentile per-packet queueing delay: 23 ms
+Average per packet delay: 10 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 31.58 Mbits/s (65.6% utilization)
+95th percentile per-packet queueing delay: 19 ms
+Average per packet delay: 7 ms
+------------------------------
+orca-cubic-wired48-wired48-10-20-160
+Average capacity: 48.13 Mbits/s
+Average throughput: 31.72 Mbits/s (65.9% utilization)
+95th percentile per-packet queueing delay: 18 ms
+Average per packet delay: 7 ms
+------------------------------

@@ -67,7 +67,7 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
         else:
             a = agent.get_action(s0, False)
         a = env.map_action(a[0][0])
-        print("matthew:a:"+str(a))
+        # print("matthew:a:"+str(a))
 
         env.write_action(a,0)
 
@@ -76,7 +76,7 @@ def evaluate_TCP(env, agent, epoch, summary_writer, params, s0_rec_buffer, eval_
             eval_step_counter += 1
             step_counter += 1
 
-            s1, r, terminal, error_code,ccc = env.step(a, eval_=True)
+            s1, r, terminal, error_code,ccc,rrr = env.step(a, eval_=True)
 
             if error_code == True:
                 s1_rec_buffer = np.concatenate( (s0_rec_buffer[params.dict['state_dim']:], s1) )
@@ -180,7 +180,7 @@ def main():
     global params
     config = parser.parse_args()
 
-    print("matthew:job name:"+str(config.job_name))
+    # print("matthew:job name:"+str(config.job_name))
 
     ## parameters from file
     params = Params(os.path.join(config.base_path,'params.json'))
@@ -194,13 +194,13 @@ def main():
 
 
     if params.dict['single_actor_eval']:
-        print("matthew:single_actor_eval")
+        # print("matthew:single_actor_eval")
         local_job_device = ''
         shared_job_device = ''
         def is_actor_fn(i): return True
         global_variable_device = '/cpu'
         is_learner = False
-        print("matthew:create_local_server")
+        # print("matthew:create_local_server")
         server = tf.train.Server.create_local_server()#会在本地创建一个单进程集群，该集群众的服务默认为启动状态
         filters = []
     else:
@@ -209,7 +209,7 @@ def main():
         shared_job_device = '/job:learner/task:0'
 
         is_learner = config.job_name == 'learner'
-        print("matthew:is_learner1:"+str(is_learner))
+        # print("matthew:is_learner1:"+str(is_learner))
 
         global_variable_device = shared_job_device + '/cpu'
 
@@ -433,14 +433,14 @@ def main():
                     start = time.time()
                     print("matthew: time:"+str(start))
                     epoch += 1
-                    print("matthew:time1:"+str(time.time()))
+                    # print("matthew:time1:"+str(time.time()))
                     # 这里的state意味着上一个episode的state，然后会根据不同情况决定下一个state是什么
                     step_counter += 1
-                    s1, r, terminal, error_code,cwnd = env.step(a,eval_=config.eval)#这个action参数没啥用
+                    s1, r, terminal, error_code,cwnd ,rtt= env.step(a,eval_=config.eval)#这个action参数没啥用
                     if(count==1):
                         prev_cwnd = cwnd 
                     
-                    print("matthew:s1:"+str(s1))
+                    # print("matthew:s1:"+str(s1))
 
                     
                     
@@ -467,7 +467,7 @@ def main():
                             print("matthew:x_r:"+str(x_r)+" x_c:"+str(x_c)+" prev_cwnd:"+str(prev_cwnd))
                             if np.abs(x_r-x_c)>=0.2*prev_cwnd:#prev_cwnd not defined yet
                                 #进入evaluation stage
-                                if(x_r-prev_cwnd)*(x_c-prev_cwnd)>=0 :
+                                if(x_r-prev_cwnd)*(x_c-prev_cwnd)>0 :#如果x_r 和x_c同增同减
                                          #进入EI,注意：进入EI和进入evaluation stage是不一样的
                                         if x_r>x_c:
                                             cwnd_list.append(x_c)
@@ -505,7 +505,8 @@ def main():
                         elif orca_state==Orca_state.EI_c_1:
                             print("matthew:stage:EI_c_1")
                             if EI_sequence==1:#cl先行 下一个状态是EI_r_1
-                                u_1=r#得到u1但是后续需要除episode的长度
+                                u_1=r/rtt#得到u1但是后续需要除episode的长度
+                                print("u_1:"+str(u_1))
                                 orca_state=Orca_state.EI_r_1
                                 a_final=cwnd_list[1]
                             else:
@@ -516,7 +517,8 @@ def main():
                         elif orca_state==Orca_state.EI_r_1:
                             print("matthew:stage:EI_r_1")
                             if EI_sequence==0:#rl先行 下一个状态是EI_c_1
-                                u_1=r#得到u1但是后续需要除episode的长度
+                                u_1=r/rtt#得到u1但是后续需要除episode的长度
+                                print("u_1:"+str(u_1))
                                 orca_state=Orca_state.EI_c_1
                                 a_final=cwnd_list[1]
                             else:
@@ -527,12 +529,14 @@ def main():
                         elif orca_state==Orca_state.EI_c_2:
                             print("matthew:stage:EI_c_2")
                             if EI_sequence==1:#cl先行 下一个动作是EI_r_2
-                                u_2=r#得到u2但是后续需要除episode的长度
+                                u_2=2*r/rtt#得到u2但是后续需要除episode的长度
+                                print("u_2:"+str(u_2))
                                 orca_state=Orca_state.EI_r_2
                                 # a_final=a_r
                             else:
                                 orca_state=Orca_state.Ordinary#Evaluation结束进入Ordinary
-                                u_3=r
+                                u_3=2*r/rtt
+                                print("u_1:"+str(u_1)+"  u_2:"+str(u_2)+" u_3:"+str(u_3))
                                 if max(u_2,u_3)>=u_1:
                                     if(u_2>u_3):#EI——sequence=1 rl先行
                                         a_final=cwnd_list[0]
@@ -546,12 +550,13 @@ def main():
                         elif orca_state==Orca_state.EI_r_2:
                             print("matthew:stage:EI_r_2")
                             if EI_sequence==0:#rl先行 下一个动作是EI_c_2
-                                u_2=r#得到u2但是后续需要除episode的长度
+                                u_2=2*r/rtt#得到u2但是后续需要除episode的长度
                                 orca_state=Orca_state.EI_c_2
                                 # a_final=a_r
                             else:
                                 orca_state=Orca_state.Ordinary#Evaluation结束进入Ordinary
-                                u_3=r
+                                u_3=2*r/rtt
+                                print("u_1:"+str(u_1)+"  u_2:"+str(u_2)+" u_3:"+str(u_3))
                                 if max(u_2,u_3)>=u_1:
                                     if(u_2>u_3):#EI——sequence=0 cl先行
                                         a_final=cwnd_list[0]

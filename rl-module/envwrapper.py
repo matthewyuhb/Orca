@@ -155,7 +155,7 @@ class TCP_Env_Wrapper(object):
     def reset(self):
         # start signal
         self.shrmem_w.write(str(99999) + " " + str(99999) + "\0")
-        state, delay_, rew0, error_code,cwnd  = self.get_state()
+        state, delay_, rew0, error_code,cwnd,rtt  = self.get_state()
         return state
 
     def test(self):
@@ -315,9 +315,9 @@ class TCP_Env_Wrapper(object):
             state=np.append(state,[delay_metric])
 
             self.prev_rid = rid
-            return state, d, reward, True,cwnd
+            return state, d, reward, True,cwnd,srtt_ms
         else:
-            return state, 0.0, reward, False,4
+            return state, 0.0, reward, False,4,40
 
     def map_action(self, action):
         out = math.pow(4, action)
@@ -341,9 +341,9 @@ class TCP_Env_Wrapper(object):
         pass
 
     def step(self, action, eval_=False):
-        s1, delay_, rew0, error_code ,cwnd = self.get_state(evaluation=eval_)
+        s1, delay_, rew0, error_code ,cwnd,rtt = self.get_state(evaluation=eval_)
 
-        return s1, rew0, False, error_code,cwnd
+        return s1, rew0, False, error_code,cwnd,rtt
 
 
 class Moving_Win():
