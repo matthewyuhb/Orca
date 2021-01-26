@@ -173,8 +173,6 @@ def main():
     parser.add_argument('--task', type=int, required=True, help='Task id')
 
 
-
-
     ## parameters from parser
     global config
     global params
@@ -426,12 +424,16 @@ def main():
                 start = time.time()
                 count=0
                 cwnd_list=[]
+                haveWrite=False
+                strCWND_record=""
+                strRLCWND_record=""
+                strCLCWND_record=""
                 while True:
                     print("")
                     print(count)
                     count+=1
-                    start = time.time()
-                    print("matthew: time:"+str(start))
+                    current_time = time.time()
+                    print("matthew: time:"+str(current_time))
                     epoch += 1
                     # print("matthew:time1:"+str(time.time()))
                     # 这里的state意味着上一个episode的state，然后会根据不同情况决定下一个state是什么
@@ -441,6 +443,7 @@ def main():
                         prev_cwnd = cwnd 
                     
                     # print("matthew:s1:"+str(s1))
+                    strCWND_record+=(str(int((current_time-start)*1000000)/1000000)+" "+str(cwnd)+"\n")
 
                     
                     
@@ -464,6 +467,8 @@ def main():
 
                             x_r=prev_cwnd*a_r/100#按照rl得出的对应的cwnd的值
                             x_c=cwnd#得到cubic得到的action  它就是新cwnd的值
+                            strRLCWND_record+=(str(int((current_time-start)*1000000)/1000000)+" "+str(x_r)+"\n")
+                            strCLCWND_record+=(str(int((current_time-start)*1000000)/1000000)+" "+str(x_c)+"\n")
                             print("matthew:x_r:"+str(x_r)+" x_c:"+str(x_c)+" prev_cwnd:"+str(prev_cwnd))
                             if np.abs(x_r-x_c)>=0.2*prev_cwnd:#prev_cwnd not defined yet
                                 #进入evaluation stage
@@ -482,23 +487,23 @@ def main():
                                             a_final=cwnd_list[0]
                                             orca_state=Orca_state.EI_r_1
                                 else: 
-                                    if (x_c-prev_cwnd)<0 :  
-                                        a_final=x_c
-                                        prev_cwnd=a_final
-                                    else:
+                                    # if (x_c-prev_cwnd)<0 :  
+                                    #     a_final=x_c
+                                    #     prev_cwnd=a_final
+                                    # else:
                                     #进入EI
-                                        if x_r>x_c:
-                                            cwnd_list.append(x_c)
-                                            cwnd_list.append(x_r)
-                                            EI_sequence=1
-                                            a_final=cwnd_list[0]
-                                            orca_state=Orca_state.EI_c_1
-                                        else:
-                                            cwnd_list.append(x_r)
-                                            cwnd_list.append(x_c)
-                                            EI_sequence=0
-                                            a_final=cwnd_list[0]
-                                            orca_state=Orca_state.EI_r_1
+                                    if x_r>x_c:
+                                        cwnd_list.append(x_c)
+                                        cwnd_list.append(x_r)
+                                        EI_sequence=1
+                                        a_final=cwnd_list[0]
+                                        orca_state=Orca_state.EI_c_1
+                                    else:
+                                        cwnd_list.append(x_r)
+                                        cwnd_list.append(x_c)
+                                        EI_sequence=0
+                                        a_final=cwnd_list[0]
+                                        orca_state=Orca_state.EI_r_1    
                             else:
                                 a_final=x_c
                         
@@ -580,10 +585,22 @@ def main():
                     #         a_rl = agent.get_action(s1,not config.eval)
 
                         # a_final = env.map_action(a_rl[0][0])
+                        if(current_time>start+34 and haveWrite==False):
+                            haveWrite=True
+                            print("matthew: 30s!!!!")
+                            cwnd_writer=open("/home/matthew/Orca/Analysis/cwnd.txt","w")
+                            cwnd_writer.write(strCWND_record)
+                            cwnd_writer.close()
+                            rl_cwnd_writer=open("/home/matthew/Orca/Analysis/rl_cwnd.txt","w")
+                            rl_cwnd_writer.write(strRLCWND_record)
+                            rl_cwnd_writer.close()
+                            cl_cwnd_writer=open("/home/matthew/Orca/Analysis/cl_cwnd.txt","w")
+                            cl_cwnd_writer.write(strCLCWND_record)
+                            cl_cwnd_writer.close()
 
 
 
-                        print("matthew:time2:"+str(time.time()))
+                        print("matthew:time2:"+str(time.time()-start))
                         env.write_action(a_final,orca_state)
                         print("matthew:a3:"+str(a_final))
 

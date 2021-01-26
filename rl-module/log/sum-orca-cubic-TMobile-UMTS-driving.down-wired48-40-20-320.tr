@@ -1,0 +1,18 @@
+orca-cubic-TMobile-UMTS-driving.down-wired48-40-20-320
+Average capacity: 0.85 Mbits/s
+Average throughput: 0.67 Mbits/s (78.8% utilization)
+95th percentile per-packet queueing delay: 10989 ms
+Average per packet delay: 1775 ms
+------------------------------
+orca-cubic-TMobile-UMTS-driving.down-wired48-40-20-320
+Average capacity: 1.60 Mbits/s
+Average throughput: 1.52 Mbits/s (95.0% utilization)
+95th percentile per-packet queueing delay: 1331 ms
+Average per packet delay: 499 ms
+------------------------------
+orca-cubic-TMobile-UMTS-driving.down-wired48-40-20-320
+Average capacity: 1.59 Mbits/s
+Average throughput: 1.35 Mbits/s (84.9% utilization)
+95th percentile per-packet queueing delay: 3427 ms
+Average per packet delay: 718 ms
+------------------------------

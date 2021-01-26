@@ -1,0 +1,24 @@
+orca-cubic-ATT-LTE-driving.up-wired48-40-20-320
+Average capacity: 0.94 Mbits/s
+Average throughput: 0.76 Mbits/s (80.7% utilization)
+95th percentile per-packet queueing delay: 437 ms
+Average per packet delay: 260 ms
+------------------------------
+orca-cubic-ATT-LTE-driving.up-wired48-40-20-320
+Average capacity: 0.92 Mbits/s
+Average throughput: 0.75 Mbits/s (81.5% utilization)
+95th percentile per-packet queueing delay: 3117 ms
+Average per packet delay: 770 ms
+------------------------------
+orca-cubic-ATT-LTE-driving.up-wired48-40-20-320
+Average capacity: 0.94 Mbits/s
+Average throughput: 0.43 Mbits/s (46.1% utilization)
+95th percentile per-packet queueing delay: 725 ms
+Average per packet delay: 376 ms
+------------------------------
+orca-cubic-ATT-LTE-driving.up-wired48-40-20-320
+Average capacity: 0.93 Mbits/s
+Average throughput: 0.81 Mbits/s (86.8% utilization)
+95th percentile per-packet queueing delay: 688 ms
+Average per packet delay: 387 ms
+------------------------------

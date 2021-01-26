@@ -1,0 +1,30 @@
+orca-cubic-TMobile-LTE-driving.down-wired48-40-20-320
+Average capacity: 8.36 Mbits/s
+Average throughput: 6.36 Mbits/s (76.1% utilization)
+95th percentile per-packet queueing delay: 434 ms
+Average per packet delay: 175 ms
+------------------------------
+orca-cubic-TMobile-LTE-driving.down-wired48-40-20-320
+Average capacity: 8.28 Mbits/s
+Average throughput: 6.41 Mbits/s (77.4% utilization)
+95th percentile per-packet queueing delay: 626 ms
+Average per packet delay: 255 ms
+------------------------------
+orca-cubic-TMobile-LTE-driving.down-wired48-40-20-320
+Average capacity: 37.53 Mbits/s
+Average throughput: 8.44 Mbits/s (22.5% utilization)
+95th percentile per-packet queueing delay: 49 ms
+Average per packet delay: 17 ms
+------------------------------
+orca-cubic-TMobile-LTE-driving.down-wired48-40-20-320
+Average capacity: 8.24 Mbits/s
+Average throughput: 6.20 Mbits/s (75.2% utilization)
+95th percentile per-packet queueing delay: 490 ms
+Average per packet delay: 171 ms
+------------------------------
+orca-cubic-TMobile-LTE-driving.down-wired48-40-20-320
+Average capacity: 8.28 Mbits/s
+Average throughput: 6.22 Mbits/s (75.1% utilization)
+95th percentile per-packet queueing delay: 561 ms
+Average per packet delay: 187 ms
+------------------------------

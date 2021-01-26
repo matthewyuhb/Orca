@@ -1,0 +1,12 @@
+orca-cubic-Verizon-LTE-short.down-wired48-40-20-320
+Average capacity: 5.54 Mbits/s
+Average throughput: 5.01 Mbits/s (90.5% utilization)
+95th percentile per-packet queueing delay: 549 ms
+Average per packet delay: 219 ms
+------------------------------
+orca-cubic-Verizon-LTE-short.down-wired48-40-20-320
+Average capacity: 5.57 Mbits/s
+Average throughput: 4.80 Mbits/s (86.2% utilization)
+95th percentile per-packet queueing delay: 696 ms
+Average per packet delay: 264 ms
+------------------------------

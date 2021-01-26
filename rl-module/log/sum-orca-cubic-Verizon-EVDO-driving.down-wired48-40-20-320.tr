@@ -1,0 +1,30 @@
+orca-cubic-Verizon-EVDO-driving.down-wired48-40-20-320
+Average capacity: 0.14 Mbits/s
+Average throughput: 0.12 Mbits/s (86.4% utilization)
+95th percentile per-packet queueing delay: 2587 ms
+Average per packet delay: 694 ms
+------------------------------
+orca-cubic-Verizon-EVDO-driving.down-wired48-40-20-320
+Average capacity: 0.18 Mbits/s
+Average throughput: 0.07 Mbits/s (37.3% utilization)
+95th percentile per-packet queueing delay: 9431 ms
+Average per packet delay: 1861 ms
+------------------------------
+orca-cubic-Verizon-EVDO-driving.down-wired48-40-20-320
+Average capacity: 0.13 Mbits/s
+Average throughput: 0.12 Mbits/s (92.4% utilization)
+95th percentile per-packet queueing delay: 10005 ms
+Average per packet delay: 2030 ms
+------------------------------
+orca-cubic-Verizon-EVDO-driving.down-wired48-40-20-320
+Average capacity: 0.13 Mbits/s
+Average throughput: 0.12 Mbits/s (90.7% utilization)
+95th percentile per-packet queueing delay: 6453 ms
+Average per packet delay: 1210 ms
+------------------------------
+orca-cubic-Verizon-EVDO-driving.down-wired48-40-20-320
+Average capacity: 0.15 Mbits/s
+Average throughput: 0.14 Mbits/s (92.3% utilization)
+95th percentile per-packet queueing delay: 10697 ms
+Average per packet delay: 1811 ms
+------------------------------

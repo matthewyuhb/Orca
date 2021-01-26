@@ -27,8 +27,10 @@
 
 #include <cstdlib>
 #include <sys/select.h>
+#include  <time.h>
 #include "define.h"
 #include <iostream>
+
 //#define CHANGE_TARGET 1
 #define MAX_CWND 10000
 #define MIN_CWND 4
@@ -157,6 +159,7 @@ void start_server(int flow_num, int client_port)
     else
         sprintf(cmd, "sudo -u `whoami`  mm-delay %d mm-link %s/../traces/%s %s/../traces/%s --uplink-queue=droptail --uplink-queue-args=\"packets=%d\" --downlink-queue=droptail --downlink-queue-args=\"packets=%d\" -- sh -c \'%s\' &",delay_ms,path,uplink,path,downlink,qsize,qsize,container_cmd);
     
+    cout<<"[CPP]matthew:CMD: "<<cmd<<endl;
     sprintf(final_cmd,"%s",cmd);
 
     //上面这几段应该是为了启动mahimahi
@@ -424,15 +427,22 @@ void* CntThread(void* information)
     int get_info_error_counter=0;
     int actor_is_dead_counter=0;
     int tmp_step=0;
+    
     while(send_traffic)  
 	{
+        cout<<"sending...."<<endl;
        for(int i=0;i<flow_index;i++)
        {
            got_no_zero=0;
            usleep(report_period*1000);
+           cout<<"[CPP]matthew:report period:"<<report_period<<endl;
+           struct timeval CurrentTime;
+                
            while(!got_no_zero && send_traffic)
            {
             //    cout<<"[CPP]:matthew:sending traffic"<<endl;
+                gettimeofday(&CurrentTime,NULL);
+                cout<<"[CPP]matthew: **********GET STATE time Sec:"<<CurrentTime.tv_sec<<"."<<CurrentTime.tv_usec<<endl;
                 ret1= get_orca_info(sock_for_cnt[i],&orca_info);
                 // cout<<"[CPP]:matthew:orca_info.avg_urtt:"<<orca_info.avg_urtt<<endl;
                 if(ret1<0)
@@ -442,6 +452,7 @@ void* CntThread(void* information)
                 }
                 if(orca_info.avg_urtt>0)
                 {
+                    // report_period=orca_info.avg_urtt;
                     t1=timestamp();
                     
                     double time_delta=(double)(t1-t0)/1000000.0;
@@ -455,9 +466,16 @@ void* CntThread(void* information)
                     packets_out=(double)(orca_info.packets_out);
                     retrans_out=(double)(orca_info.retrans_out);
                     max_packets_out=(double)(orca_info.max_packets_out);
-
-                    report_period=20;
-                    cout<<"[CPP]:matthew111!!! orca_info.cwnd:"<<orca_info.cwnd<<"orca_info.snd_ssthresh:"<<orca_info.snd_ssthresh<<endl;
+                    if(slow_start_passed){
+                        if(orca_info.orca_state==0){
+                                report_period=delay;
+                        }else{
+                                report_period=delay/2;
+                        }
+                        
+                    }
+                        
+                    cout<<"[CPP]:matthew111!!! orca_info.cwnd:"<<orca_info.cwnd<<"orca_info.snd_ssthresh:"<<orca_info.snd_ssthresh<<"orca_info.avg_urtt"<<orca_info.avg_urtt<<endl;
                     if (!slow_start_passed){//如果满启动没有结束
                             //Just for the first Time
                         slow_start_passed=(orca_info.snd_ssthresh<orca_info.cwnd)?1:0;
@@ -521,37 +539,49 @@ void* CntThread(void* information)
            num=strtok_r(shared_memory_rl," ",&save_ptr);
            alpha=strtok_r(NULL," ",&save_ptr);
            orca_state = strtok_r(NULL," ",&save_ptr);
-            cout<<"[CPP]:matthew:num:"<<num<<endl;
-            if(alpha){
-                cout<<"[CPP]:matthew:alpha:"<<alpha<<endl;
-            }
-            // 
-            if(orca_state){
-                cout<<"[CPP]:matthew:orca_state:"<<orca_state<<endl;  
-            }
+           
+            // cout<<"[CPP]:matthew:num:"<<num<<endl;
+            // if(alpha){
+            //     cout<<"[CPP]:matthew:alpha:"<<alpha<<endl;
+            // }
+            // // 
+            // if(orca_state){
+            //     cout<<"[CPP]:matthew:orca_state:"<<orca_state<<endl;  
+            // }
             // 
            if(num!=NULL && alpha!=NULL&&orca_state!=NULL)
            {
                pre_id_tmp=atoi(num);
                target_ratio=atoi(alpha);
                orca_state_i=atoi(orca_state);
+            //    if(pre_id_tmp>2){
+            //         target_ratio=420;
+            //         orca_state_i=2;
+            //    }
+                
                if(pre_id!=pre_id_tmp /*&& target_ratio!=OK_SIGNAL*/)
                {
                   got_alpha=true; 
                   pre_id=pre_id_tmp; 
-                  target_ratio=1000000;//atoi(alpha)*orca_info.cwnd/100;
+                //   target_ratio=1000000;//atoi(alpha)*orca_info.cwnd/100;
                   cout<<"[CPP]:matthew:target_ratio:"<<target_ratio<<  "  pre_id:"<<pre_id_tmp<<" orca_state"<<orca_state_i<<endl;
                   
                   if (target_ratio<MIN_CWND)
                       target_ratio=MIN_CWND;
+                
 
+                // struct timeval CurrentTime;
+                gettimeofday(&CurrentTime,NULL);
 
-                ret1  = setsockopt(sock_for_cnt[i], IPPROTO_TCP,TCP_ORCA_STATE, &orca_state_i, sizeof(orca_state_i));//设置orca的状态
-                  if(ret1<0)
+                // printf("It's %d%d%d %02d:%02d:%02d now",s.wHour,s.wMinute,s.wMinute,s.wSecond,s.wMilliseconds);
+                cout<<"[CPP]matthew: **********PERFORM ACTION time Sec:"<<CurrentTime.tv_sec<<"."<<CurrentTime.tv_usec<<endl;
+                //设置orca的状态
+                  if(setsockopt(sock_for_cnt[i], IPPROTO_TCP,TCP_ORCA_STATE, &orca_state_i, sizeof(orca_state_i))<0)
                   {
                       DBGPRINT(0,0,"setsockopt_orca_state: for index:%d flow_index:%d ... %s (ret1:%d)\n",i,flow_index,strerror(errno),ret1);
                       return((void *)0);
                   }
+                  
 
                   ret1 = setsockopt(sock_for_cnt[i], IPPROTO_TCP,TCP_CWND, &target_ratio, sizeof(target_ratio));
                   if(ret1<0)
